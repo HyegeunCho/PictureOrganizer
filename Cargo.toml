@@ -1,5 +1,5 @@
 [package]
-name = "PictureOrganizer"
+name = "picture_organizer"
 version = "0.1.0"
 authors = ["HyegeunCho <hgcho84.kr@gmail.com>"]
 edition = "2018"
