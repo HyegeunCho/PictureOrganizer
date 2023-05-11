@@ -1,9 +1,5 @@
 use std::env;
 use std::fs;
-// use std::io;
-// use std::fs::File;
-// use std::io::Read;
-//use futures::executor::block_on;
 use image::*;
 use std::path::Path;
 
@@ -11,28 +7,7 @@ use chrono::offset::Utc;
 use chrono::DateTime;
 
 use exif;
-// async fn read_file_as_byte(filename: &String, filesize: usize) -> io::Result<Vec<u8>>{
-    
-//     let mut f = File::open(filename).expect("file not found");
-//     let mut buffer = vec![0; filesize];
 
-//     f.read_to_end(&mut buffer).expect("error while reading file");
-    
-//     Ok(buffer)
-// }
-
-// fn read_exif(inPath: &String) -> Result<bool, String> {
-//     let file = std::fs::File::open(inPath).expect("file not found");
-//     let mut bufreader = std::io::BufReader::new(&file);
-//     let exifreader = exif::Reader::new();
-//     let exif = exifreader.read_from_container(&mut bufreader).unwrap();
-//     for f in exif.fields() {
-//         println!("{} {} {}",
-//                  f.tag, f.ifd_num, f.display_value().with_unit(&exif));
-//     }
-
-//     Ok(true)
-// }
 
 
 
@@ -100,21 +75,6 @@ fn main() {
 
     // TEST
     img.save(new_path).expect("Cannot save copy image.");
-
-    // let file_length: usize = metadata.len() as usize;
-    // println!("File Length: {}", file_length);
-    // println!("created: {:?}", metadata.created());
-   
-
-    // let future = read_file_as_byte(&filename, file_length);
-    // match block_on(future) {
-    //     Ok(buffer) => {
-    //         println!("Success: {}", buffer.len());            
-    //     },
-    //     Err(e) => {
-    //         println!("read failed: {}", e);
-    //     }
-    // }
 }
 
 fn get_created_datetime(in_path: &String) -> DateTime<Utc> {
