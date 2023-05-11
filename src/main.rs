@@ -4,13 +4,13 @@ use std::fs;
 // use std::fs::File;
 // use std::io::Read;
 //use futures::executor::block_on;
-use image;
-use image::GenericImageView;
+use image::*;
 use std::path::Path;
 
 use chrono::offset::Utc;
 use chrono::DateTime;
 
+use exif;
 // async fn read_file_as_byte(filename: &String, filesize: usize) -> io::Result<Vec<u8>>{
     
 //     let mut f = File::open(filename).expect("file not found");
@@ -47,7 +47,7 @@ fn main() {
     println!("created: {}", datetime.format("%Y/%m/%d %T"));
 
     let path = Path::new(target_path);
-    let mut file_stem_val: String = path.file_stem().unwrap().to_string_lossy().as_ref().to_string();
+    let file_stem_val: String = path.file_stem().unwrap().to_string_lossy().as_ref().to_string();
     let file_extension_val = path.extension().unwrap().to_string_lossy();
 
     let new_parent_path = format!("classified/{}", datetime.format("%Y_%m_%d"));
@@ -59,10 +59,12 @@ fn main() {
     let mut new_path = format!("{}/{}.{}", new_parent_path, file_stem_val, file_extension_val);
     println!("New path: {}", new_path);
 
+    let mut postfix_id = 0;
     while is_exist_file(&new_path) {
-        file_stem_val.push_str("_1");
-        println!("changed file_stem: {}", file_stem_val);
-        new_path = format!("{}/{}.{}", new_parent_path, file_stem_val, file_extension_val);
+        postfix_id += 1;
+        let new_file_stem = format!("{}_{}", file_stem_val, postfix_id);
+        println!("changed file_stem: {}", new_file_stem);
+        new_path = format!("{}/{}.{}", new_parent_path, new_file_stem, file_extension_val);
     }
 
     if is_exist_file(&new_path) {
@@ -76,6 +78,27 @@ fn main() {
     let (w, h) = img.dimensions();
     println!("dimesion: ({}, {})", w, h);   
     
+
+    // read exif data
+    let file = std::fs::File::open(path).expect("Cannot open file.");
+    let mut bufreader = std::io::BufReader::new(&file);
+    let exifreader = exif::Reader::new();
+    let exif = exifreader.read_from_container(&mut bufreader);
+
+    match exif {
+        Ok(exif_val) => {
+            for f in exif_val.fields() {
+                println!("{} {} {}",
+                         f.tag, f.ifd_num, f.display_value().with_unit(&exif_val));
+            }
+        },
+        Err(error) => {
+            println!("Could not read exif data: {}", error);
+        }
+    }
+    
+
+    // TEST
     img.save(new_path).expect("Cannot save copy image.");
 
     // let file_length: usize = metadata.len() as usize;
@@ -102,6 +125,8 @@ fn get_created_datetime(in_path: &String) -> DateTime<Utc> {
 
     datetime
 }
+
+
 
 fn is_exist_file(in_path: &String) -> bool {
 
